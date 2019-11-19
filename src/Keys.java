@@ -9,7 +9,11 @@ class Keys {
     public final static BigInteger ELLIPTIC_CURVE_ORDER_MINUS_ONE = ELLIPTIC_CURVE_ORDER.
             subtract(new BigInteger("1"));
 
-
+    /**
+     * static method for generating a private key in size of 2 ^ 256, but less than the elliptic curve order, so it can
+     * be a private key for the java_coin blockchain (as in the bitcoin blockchain)
+     * @return the generated private key as a BigInteger
+     */
     public static BigInteger privKey()
     {
         Random randPrivateKey = new Random();
