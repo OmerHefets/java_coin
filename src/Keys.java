@@ -1,4 +1,3 @@
-import java.io.IOException;
 import java.math.BigInteger;
 import java.nio.charset.StandardCharsets;
 import java.security.InvalidAlgorithmParameterException;
@@ -11,14 +10,10 @@ import java.security.SecureRandom;
 import java.security.MessageDigest;
 import java.security.spec.ECGenParameterSpec;
 import java.util.Arrays;
-import java.util.Random;
-import java.util.Arrays;
 import org.bouncycastle.crypto.digests.RIPEMD160Digest;
-import org.bouncycastle.util.encoders.Hex;
 import org.bitcoinj.core.Base58;
 
 class Keys {
-
     public final static int PRIV_KEY_BITS_LENGTH = 256;
     public final static BigInteger ELLIPTIC_CURVE_ORDER = new BigInteger
             ("FFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFEBAAEDCE6AF48A03BBFD25E8CD0364141", 16);
@@ -30,12 +25,14 @@ class Keys {
     public final static int RIPEMD160_HASH_LENGTH = 20;
     public final static byte[] BITCOIN_ADDRESS_PREFIX_IN_ARR = {0};
     public final static int FIRST_4_BYTES_OF_CHECKSUM = 4;
+    public final static int HEX_BASE = 16;
 
     /**
      * static method for generating a private key in size of 2 ^ 256, but less than the elliptic curve order, so it can
      * be a private key for the java_coin blockchain (as in the bitcoin blockchain)
-     *
      * @return the generated private key as a BigInteger
+     * @throws NoSuchAlgorithmException first exception of the ECDSA library
+     * @throws InvalidAlgorithmParameterException second exception of the ECDSA library
      */
     public static BigInteger[] getPrivAndPubKeys() throws NoSuchAlgorithmException, InvalidAlgorithmParameterException {
         // Generate both privateKey and publicKey, Using an existing library
@@ -69,17 +66,33 @@ class Keys {
         // Convert the substrings to BigInteger
         // Init BigInteger array, index 0: privateKey. index 1: publicKey
         BigInteger[] arrayOfPrivPubKeys = new BigInteger[2];
-        arrayOfPrivPubKeys[0] = new BigInteger(substringPrivKey, 16);
-        arrayOfPrivPubKeys[1] = new BigInteger(substringPubKey, 16);
+        arrayOfPrivPubKeys[0] = new BigInteger(substringPrivKey, HEX_BASE);
+        arrayOfPrivPubKeys[1] = new BigInteger(substringPubKey, HEX_BASE);
         return arrayOfPrivPubKeys;
     }
 
+    /**
+     * returns a key (private key or public key) as a hex string
+     * @param key the required key
+     * @return the key as a string
+     */
+    public static String getKeysAsHexString(BigInteger key)
+    {
+        return key.toString(HEX_BASE);
+    }
+
+    /**
+     * A method that gets a public key and return the adress of that public key
+     * @param publicKey the public key
+     * @return the adress as a String
+     * @throws NoSuchAlgorithmException for the MessageDigest class
+     */
     public static String getAdress(BigInteger publicKey) throws NoSuchAlgorithmException {
         // Convert to byte array for the SHA256, RIPEMD160
-        String stringPublicKey = publicKey.toString(16);
-        MessageDigest d256 = MessageDigest.getInstance("SHA-256");
+        String stringPublicKey = publicKey.toString(HEX_BASE);
 
         // Apply first SHA256
+        MessageDigest d256 = MessageDigest.getInstance("SHA-256");
         byte[] hashedSHA256PublicKey_byteArr = d256.digest(stringPublicKey.getBytes(StandardCharsets.UTF_8));
 
         // Apply RIPEMD160
@@ -112,29 +125,20 @@ class Keys {
 
     }
 
-
     public static void main(String[] args)
     {
         try {
             BigInteger[] privateAndPublicArr = new BigInteger[2];
             privateAndPublicArr = Keys.getPrivAndPubKeys();
-            Keys.getAdress(privateAndPublicArr[1]);
+            String adress = Keys.getAdress(privateAndPublicArr[1]);
+            System.out.println("The private key (in hex) is: " + Keys.getKeysAsHexString(privateAndPublicArr[0]));
+            System.out.println("The public key (in hex) is: " + Keys.getKeysAsHexString(privateAndPublicArr[1]));
+            System.out.println("The adress (String, base 58) is: " + adress);
         } catch (NoSuchAlgorithmException e) {
             System.out.println("No Such Algorithm");
         } catch (InvalidAlgorithmParameterException e) {
             System.out.println("Invalid Algorithm Parameter");
         }
-        /*
-        try {
-            BigInteger[] arreeee = new BigInteger[2];
-            arreeee = Keys.getPrivAndPubKeys();
-        } catch (NoSuchAlgorithmException e) {
-            System.out.println("No Such Algorithm");
-        } catch (InvalidAlgorithmParameterException e) {
-            System.out.println("Invalid Algorithm Parameter");
-        }
-        */
     }
-
 
 }
