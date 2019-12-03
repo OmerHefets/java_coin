@@ -82,12 +82,12 @@ class Keys {
     }
 
     /**
-     * A method that gets a public key and return the adress of that public key
+     * A method that gets a public key and return the address of that public key
      * @param publicKey the public key
-     * @return the adress as a String
+     * @return the address as a String
      * @throws NoSuchAlgorithmException for the MessageDigest class
      */
-    public static String getAdress(BigInteger publicKey) throws NoSuchAlgorithmException {
+    public static String getAddress(BigInteger publicKey) throws NoSuchAlgorithmException {
         // Convert to byte array for the SHA256, RIPEMD160
         String stringPublicKey = publicKey.toString(HEX_BASE);
 
@@ -120,25 +120,8 @@ class Keys {
         System.arraycopy(fourFirstBytesChecksum, 0, addressInBytesArray, hashedRIPEMD160_withPrefix.length,
                 fourFirstBytesChecksum.length);
 
-        // Convert the bitcoin adress from bytes array to String with Base58 class in bitcoinj, and return the adress
+        // Convert the bitcoin address from bytes array to String with Base58 class in bitcoinj, and return the address
         return Base58.encode(addressInBytesArray);
 
     }
-
-    public static void main(String[] args)
-    {
-        try {
-            BigInteger[] privateAndPublicArr = new BigInteger[2];
-            privateAndPublicArr = Keys.getPrivAndPubKeys();
-            String adress = Keys.getAdress(privateAndPublicArr[1]);
-            System.out.println("The private key (in hex) is: " + Keys.getKeysAsHexString(privateAndPublicArr[0]));
-            System.out.println("The public key (in hex) is: " + Keys.getKeysAsHexString(privateAndPublicArr[1]));
-            System.out.println("The adress (String, base 58) is: " + adress);
-        } catch (NoSuchAlgorithmException e) {
-            System.out.println("No Such Algorithm");
-        } catch (InvalidAlgorithmParameterException e) {
-            System.out.println("Invalid Algorithm Parameter");
-        }
-    }
-
 }
